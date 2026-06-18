@@ -20,5 +20,7 @@ public class UserProfile {
     private String lastName;
     private String address;
     private String profileImgUrl;
+    @Enumerated(EnumType.STRING)
+    private ProfileStatus profileStatus;
 }
 

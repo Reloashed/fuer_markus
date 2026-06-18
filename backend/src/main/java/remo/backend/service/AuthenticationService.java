@@ -15,7 +15,10 @@ import remo.backend.dto.RegisterDto;
 import remo.backend.dto.TokenDto;
 import remo.backend.entity.Account;
 import remo.backend.entity.PendingRegistration;
+import remo.backend.entity.ProfileStatus;
+import remo.backend.entity.UserProfile;
 import remo.backend.repository.AccountRepository;
+import remo.backend.repository.UserProfileRepository;
 import remo.backend.security.JwtService;
 
 import javax.swing.text.html.Option;
@@ -24,6 +27,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import static remo.backend.entity.ProfileStatus.UNVERIFIED;
 import static remo.backend.security.Role.USER;
 
 @Service
@@ -36,9 +40,10 @@ public class AuthenticationService {
     private final AccountService accountService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserProfileRepository userProfileRepository;
 
     @Autowired
-    public AuthenticationService(AccountRepository accountRepository, PasswordEncoder passwordEncoder, RegistrationService registrationService, MailService mailService, AccountService accountService, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public AuthenticationService(AccountRepository accountRepository, PasswordEncoder passwordEncoder, RegistrationService registrationService, MailService mailService, AccountService accountService, JwtService jwtService, AuthenticationManager authenticationManager, UserProfileRepository userProfileRepository) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.registrationService = registrationService;
@@ -46,6 +51,7 @@ public class AuthenticationService {
         this.accountService = accountService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public Optional<TokenDto> authenticateUser(AuthenticationDto authDto) {
@@ -77,6 +83,14 @@ public class AuthenticationService {
         if (pendingRegistrationOptional.isPresent()) {
             PendingRegistration pendingRegistration = pendingRegistrationOptional.get();
             if (pendingRegistration.getCreatedAt().isAfter(Instant.now().minus(Duration.ofDays(1)))) {
+                UserProfile userProfile = userProfileRepository.save(new UserProfile(
+                        null,
+                        pendingRegistration.getFirstname(),
+                        pendingRegistration.getLastname(),
+                        "address",
+                        null,
+                        UNVERIFIED
+                ));
                 accountService.createAccount(Account.builder()
                                 .firstName(pendingRegistration.getFirstname())
                                 .lastName(pendingRegistration.getLastname())
@@ -84,6 +98,7 @@ public class AuthenticationService {
                                 .email(pendingRegistration.getEmail())
                                 .passwordHash(pendingRegistration.getPasswordHash())
                                 .role(USER)
+                                .userProfile(userProfile)
                         .build());
                 registrationService.removePendingRegistration(token);
                 return HttpStatus.OK;

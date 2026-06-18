@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import remo.backend.entity.Account;
+import remo.backend.entity.ProfileStatus;
 import remo.backend.entity.UserProfile;
 import remo.backend.repository.AccountRepository;
 import remo.backend.repository.UserProfileRepository;
@@ -38,7 +39,8 @@ public class UserProfileService {
                 request.getFirstName(),
                 request.getLastName(),
                 request.getAddress(),
-                request.getProfileImgUrl()
+                request.getProfileImgUrl(),
+                request.getProfileStatus()
         ));
     }
 
@@ -54,7 +56,17 @@ public class UserProfileService {
                 request.getFirstName(),
                 request.getLastName(),
                 request.getAddress(),
-                request.getProfileImgUrl()
+                request.getProfileImgUrl(),
+                request.getProfileStatus()
         ));
+    }
+
+    public UserProfile setProfileStatus(Long profileId, ProfileStatus status) {
+        UserProfile profile = userProfileRepository.findById(profileId)
+                .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        profile.setProfileStatus(status);
+
+        return userProfileRepository.save(profile);
     }
 }

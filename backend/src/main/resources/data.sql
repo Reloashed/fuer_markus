@@ -1,8 +1,8 @@
-INSERT INTO user_profile (id, first_name, last_name, address, profile_img_url)
+INSERT INTO user_profile (id, first_name, last_name, address, profile_img_url, profile_status)
 VALUES
-    (1, 'Admin', 'User', 'Admin Street 1', NULL),
-    (2, 'Anna', 'Müller', 'Berlin 12', NULL),
-    (3, 'James', 'Bond', 'London HQ', NULL);
+    (1, 'Admin', 'User', 'Admin Street 1', NULL, 'UNVERIFIED'),
+    (2, 'Anna', 'Müller', 'Berlin 12', NULL, 'UNVERIFIED'),
+    (3, 'James', 'Bond', 'London HQ', NULL, 'UNVERIFIED');
 
 -- Initial data for account table
 -- Passwords are Bcrypt hashes of the password 'pizza'.

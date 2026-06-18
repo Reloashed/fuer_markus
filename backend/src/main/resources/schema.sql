@@ -3,7 +3,8 @@ CREATE TABLE user_profile (
                               first_name VARCHAR(255),
                               last_name VARCHAR(255),
                               address VARCHAR(255),
-                              profile_img_url VARCHAR(512)
+                              profile_img_url VARCHAR(512),
+                              profile_status VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE account
