@@ -40,10 +40,9 @@ public class AuthenticationService {
     private final AccountService accountService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UserProfileRepository userProfileRepository;
 
     @Autowired
-    public AuthenticationService(AccountRepository accountRepository, PasswordEncoder passwordEncoder, RegistrationService registrationService, MailService mailService, AccountService accountService, JwtService jwtService, AuthenticationManager authenticationManager, UserProfileRepository userProfileRepository) {
+    public AuthenticationService(AccountRepository accountRepository, PasswordEncoder passwordEncoder, RegistrationService registrationService, MailService mailService, AccountService accountService, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.registrationService = registrationService;
@@ -51,7 +50,6 @@ public class AuthenticationService {
         this.accountService = accountService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
-        this.userProfileRepository = userProfileRepository;
     }
 
     public Optional<TokenDto> authenticateUser(AuthenticationDto authDto) {
