@@ -7,6 +7,8 @@ import org.springframework.web.server.ResponseStatusException;
 import remo.backend.entity.Account;
 import remo.backend.entity.ProfileStatus;
 import remo.backend.entity.UserProfile;
+import remo.backend.exceptions.InvalidProfileStateException;
+import remo.backend.exceptions.ProfileNotFoundException;
 import remo.backend.repository.AccountRepository;
 import remo.backend.repository.UserProfileRepository;
 
@@ -23,15 +25,14 @@ public class UserProfileService {
     public UserProfile getOwnProfile(String username) {
         return accountRepository.findAccountByUsername(username)
                 .map(Account::getUserProfile)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Profile not found"));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found"));
     }
 
     public UserProfile updateOwnProfile(String username, UserProfile request) {
         Account account = accountRepository.findAccountByUsername(username)
                 .orElse(null);
         if (account == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
+            throw new ProfileNotFoundException("Profile not found");
         }
         Long userProfileId = account.getUserProfile().getId();
         return userProfileRepository.save(new UserProfile(
@@ -48,7 +49,7 @@ public class UserProfileService {
         Account account = accountRepository.findById(profileId)
                 .orElse(null);
         if (account == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
+            throw new ProfileNotFoundException("Profile not found");
         }
         Long userProfileId = account.getUserProfile().getId();
         return userProfileRepository.save(new UserProfile(
@@ -63,7 +64,13 @@ public class UserProfileService {
 
     public UserProfile setProfileStatus(Long profileId, ProfileStatus status) {
         UserProfile profile = userProfileRepository.findById(profileId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found"));
+
+        if (status == profile.getProfileStatus()) {
+            throw new InvalidProfileStateException("Profile status is already set to the requested value");
+        } else if (status == ProfileStatus.UNVERIFIED && profile.getProfileStatus() == ProfileStatus.VERIFIED) {
+            throw new InvalidProfileStateException("Profile can not be unlocked in a verified state");
+        }
 
         profile.setProfileStatus(status);
 
